@@ -37,7 +37,12 @@ def deserialize_image_file(s):
 
     class LazyStorage(LazyObject):
         def _setup(self):
-            self._wrapped = get_module_class(data['storage'])()
+            deconstructed_storage = data['storage']
+            if isinstance(deconstructed_storage, list):
+                cls_name, args, kwargs = deconstructed_storage
+                self._wrapped = get_module_class(cls_name)(*args, **kwargs)
+            else: # backward compatibility with previously stored cache entries
+                self._wrapped = get_module_class(deconstructed_storage)()
 
     image_file = ImageFile(data['name'], LazyStorage())
     image_file.set_size(data['size'])
@@ -184,10 +189,14 @@ class ImageFile(BaseImageFile):
             # thing.
             if self.storage._wrapped is empty:
                 self.storage._setup()
-            cls = self.storage._wrapped.__class__
+            storage = self.storage._wrapped
         else:
-            cls = self.storage.__class__
-        return '%s.%s' % (cls.__module__, cls.__name__)
+            storage = self.storage
+        if hasattr(storage, 'deconstruct'):
+            return list(storage.deconstruct())
+        else:
+            cls = storage.__class__
+            return ['%s.%s' % (cls.__module__, cls.__name__), [], {}]
 
     @property
     def key(self):
