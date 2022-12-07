@@ -1,11 +1,11 @@
-|travis| |docs| |pypi| |jazzband-badge| |coveralls|
+|jazzband-badge| |pypi| |python-badge| |django-badge| |docs| |gh-actions| |codecov|
 
 Thumbnails for Django.
 
 Features at a glance
 ====================
 
-- Support for Django 1.11, 2.0, 2.1, 2.2 and 3.0 following the `Django supported versions policy`_
+- Support for Django 3.2, 4.0 and 4.1 following the `Django supported versions policy`_
 - Python 3 support
 - Storage support
 - Pluggable Engine support for `Pillow`_, `ImageMagick`_, `PIL`_, `Wand`_, `pgmagick`_, and `vipsthumbnail`_
@@ -14,13 +14,13 @@ Features at a glance
 - Admin integration with possibility to delete
 - Dummy generation (placeholders)
 - Flexible, simple syntax, generates no html
-- ImageField for model that deletes thumbnails
+- ImageField for model that deletes thumbnails (only compatible with django 1.2.5 or less)
 - CSS style cropping options
 - Back smart cropping, and remove borders from the images when cropping
 - Margin calculation for vertical positioning
 - Alternative resolutions versions of a thumbnail
 
-Read more in `the documentation (latest version) <http://sorl-thumbnail.rtfd.org/>`_
+Read more in `the documentation (latest version) <https://sorl-thumbnail.readthedocs.io/>`_
 
 Developers
 ==========
@@ -33,7 +33,7 @@ and follow the `guidelines <https://jazzband.co/about/guidelines>`_.
 
 Feel free to create a new Pull request if you want to propose a new feature.
 If you need development support or want to discuss with other developers
-join us in the channel #sorl-thumnbnail at freenode.net or Gitter.
+join us in the channel #sorl-thumbnail at freenode.net or Gitter.
 
 For releases updates and more in deep development discussion use our mailing list
 in Google Groups.
@@ -53,7 +53,7 @@ Vagrantfile in the repo.
 User Support
 ============
 
-If you need help using sorl-thumbnail browse http://stackoverflow.com/questions/tagged/sorl-thumbnail
+If you need help using sorl-thumbnail browse https://stackoverflow.com/questions/tagged/sorl-thumbnail
 and posts your questions with the `sorl-thumbnail` tag.
 
 
@@ -73,7 +73,7 @@ Install in your project
 Then register 'sorl.thumbnail', in the 'INSTALLED_APPS' section of
 your project's settings. ::
 
-    INSTALLED_APPS = (
+    INSTALLED_APPS = [
         'django.contrib.auth',
         'django.contrib.admin',
         'django.contrib.sites',
@@ -83,7 +83,7 @@ your project's settings. ::
         'django.contrib.contenttypes',
 
         'sorl.thumbnail',
-    )
+    ]
 
 
 Templates Usage
@@ -107,7 +107,8 @@ Model Usage
 -----------
 
 Using the ImageField that automatically deletes references to itself in the key
-value store and its thumbnail references and the thumbnail files when deleted.::
+value store and its thumbnail references and the thumbnail files when deleted.
+Please note that this is only compatible with django 1.2.5 or less.::
 
     from django.db import models
     from sorl.thumbnail import ImageField
@@ -131,7 +132,7 @@ You can use the 'get_thumbnail'::
 See more examples in the section `Low level API examples`_ in the Documentation
 
 Using in combination with other thumbnailers
--------------------------------------------
+--------------------------------------------
 
 Alternatively, you load the templatetags by {% load sorl_thumbnail %}
 instead of traditional {% load thumbnail %}. It's especially useful in
@@ -146,8 +147,8 @@ same name (``thumbnail``) for the templatetag module::
 Frequently asked questions
 ==========================
 
-Is so slow in Amazon S3 !
--------------------------
+Is so slow in Amazon S3!
+------------------------
 
 Possible related to the implementation of your Amazon S3 Backend, see the `issue #351`_
 due the storage backend reviews if there is an existing thumbnail when tries to
@@ -160,16 +161,23 @@ A fast workaround if you are not willing to tweak your storage backend is to set
 So it will avoid to overly query the S3 API.
 
 
-.. |travis| image:: https://travis-ci.org/jazzband/sorl-thumbnail.svg?branch=master
-    :target: https://travis-ci.org/jazzband/sorl-thumbnail
+.. |gh-actions| image:: https://github.com/jazzband/sorl-thumbnail/workflows/Test/badge.svg
+    :target: https://github.com/jazzband/sorl-thumbnail/actions
 .. |docs| image:: https://readthedocs.org/projects/pip/badge/?version=latest
     :alt: Documentation for latest version
-    :target: http://sorl-thumbnail.rtfd.org/en/latest/
+    :target: https://sorl-thumbnail.readthedocs.io/en/latest/
 .. |pypi| image:: https://img.shields.io/pypi/v/sorl-thumbnail.svg
     :target: https://pypi.python.org/pypi/sorl-thumbnail
     :alt: sorl-thumbnail on PyPI
-.. |coveralls| image:: https://coveralls.io/repos/jazzband//sorl-thumbnail/badge.png?branch=master
-    :target: https://coveralls.io/r/jazzband//sorl-thumbnail?branch=master
+.. |python-badge| image:: https://img.shields.io/pypi/pyversions/sorl-thumbnail.svg
+    :target: https://pypi.python.org/pypi/sorl-thumbnail
+    :alt: Supported Python versions
+.. |django-badge| image:: https://img.shields.io/pypi/djversions/sorl-thumbnail.svg
+    :target: https://pypi.python.org/pypi/sorl-thumbnail
+    :alt: Supported Python versions
+.. |codecov| image:: https://codecov.io/gh/jazzband/sorl-thumbnail/branch/master/graph/badge.svg
+   :target: https://codecov.io/gh/jazzband/sorl-thumbnail
+   :alt: Coverage
 .. |jazzband-badge| image:: https://jazzband.co/static/img/badge.svg
    :target: https://jazzband.co/
    :alt: Jazzband
@@ -177,15 +185,15 @@ So it will avoid to overly query the S3 API.
    :target: https://jazzband.co/
    :alt: Jazzband
 
-.. _`Pillow`: http://pillow.readthedocs.org/en/latest/
-.. _`ImageMagick`: http://www.imagemagick.org/script/index.php
-.. _`PIL`: http://www.pythonware.com/products/pil/
-.. _`Wand`: http://docs.wand-py.org/
-.. _`pgmagick`: http://pgmagick.readthedocs.org/en/latest/
-.. _`vipsthumbnail`: http://www.vips.ecs.soton.ac.uk/index.php?title=VIPS
+.. _`Pillow`: https://pillow.readthedocs.io/
+.. _`ImageMagick`: https://imagemagick.org/
+.. _`PIL`: https://python-pillow.org/
+.. _`Wand`: https://docs.wand-py.org/
+.. _`pgmagick`: https://pgmagick.readthedocs.io/
+.. _`vipsthumbnail`: https://www.libvips.org/API/current/Using-vipsthumbnail.html
 
-.. _`Template examples`: http://sorl-thumbnail.readthedocs.org/en/latest/examples.html#template-examples
-.. _`Model examples`: http://sorl-thumbnail.readthedocs.org/en/latest/examples.html#model-examples
-.. _`Low level API examples`: http://sorl-thumbnail.readthedocs.org/en/latest/examples.html#low-level-api-examples
+.. _`Template examples`: https://sorl-thumbnail.readthedocs.io/en/latest/examples.html#template-examples
+.. _`Model examples`: https://sorl-thumbnail.readthedocs.io/en/latest/examples.html#model-examples
+.. _`Low level API examples`: https://sorl-thumbnail.readthedocs.io/en/latest/examples.html#low-level-api-examples
 .. _`issue #351`: https://github.com/jazzband/sorl-thumbnail/issues/351
 .. _`Django supported versions policy`: https://www.djangoproject.com/download/#supported-versions

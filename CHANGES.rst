@@ -1,6 +1,58 @@
-=========
-Changelog
-=========
+=======
+Changes
+=======
+
+12.9.0
+======
+* Drop support for Django 2.2 and 3.1.
+* Added support for Django 4.1.
+* Drop support for Python 3.6.
+* Fixed various Pillow deprecation warnings.
+
+12.8.0
+======
+* Drop support for Django 3.0.
+* Added support for Django 3.2 and 4.0.
+* Confirmed Python 3.9 and 3.10 support.
+* Adapted size regex getting size from the identify output. #532
+* Display possible ``thumbnail`` command labels in command help.
+* Added Jazzband code of conduct.
+
+
+12.7.0
+======
+* Drop support for Django 1.11
+* Added support for Django 3.1
+* Moved to GitHub Action for continuous integration.
+* Correction in convert_engine with unknown exif orientation
+* Using more resilient _get_exif_orientation logic in convert engine
+* Update wand_engine.py for ImageMagick 7
+* Fix cannot write mode RGBA as JPEG when thumbnailing a GIF
+
+
+12.6.3
+======
+
+* Deprecate Python 2 compatibility shims in favor of Python 3 only codebase. #623
+* Fix README on notes about ImageField cleaning up references on delete. #624
+* Fix image ratios with EXIF orientation. #619
+* Fix test coverage tracking. #622 and #617
+
+
+12.6.2
+======
+
+* Fix rST syntax errors from 12.6.0 and 12.6.1 that blocked release. #613
+* Improve QA setup and add rST validation to Travis and tox test matrix. #613
+
+
+12.6.1
+======
+
+* Deprecate explicit support for Python 3.4 and 3.5 in order to simplify the test matrix #610
+* Add requirement for ``setuptools_scm`` to automatically resolve version from git tags #610
+* Removed property ``thumbnail.__version__`` #610
+
 
 12.6.0
 ======
@@ -53,17 +105,3 @@ contributors. These are some of the highlights:
 * Better error detection and handling in some cases (#492)
 * Improve automated testing
 * Improve documentation
-
-
-12.4
-====
-
-Although you can find references to this version number in the Git history of
-this project, this version was never released to PyPI.
-
-
-12.4a1
-======
-
-This is the most recent release of this project to PyPI before the migration to
-Jazzband.

@@ -1,4 +1,3 @@
-from __future__ import unicode_literals, with_statement
 import re
 import os
 import subprocess
@@ -9,13 +8,12 @@ from django.utils.encoding import smart_str
 from django.core.files.temp import NamedTemporaryFile
 
 from sorl.thumbnail.base import EXTENSIONS
-from sorl.thumbnail.compat import b
 from sorl.thumbnail.conf import settings
 from sorl.thumbnail.engines.base import EngineBase
 
 logger = logging.getLogger(__name__)
 
-size_re = re.compile(r'^(?:.+) (?:[A-Z]+) (?P<x>\d+)x(?P<y>\d+)')
+size_re = re.compile(r'^(?:.+) (?:[A-Z0-9]+) (?P<x>\d+)x(?P<y>\d+)')
 
 
 class Engine(EngineBase):
@@ -53,15 +51,16 @@ class Engine(EngineBase):
 
         with NamedTemporaryFile(suffix=suffix, mode='rb') as fp:
             args.append(fp.name)
-            args = map(smart_str, args)
+            args = list(map(smart_str, args))
             p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             returncode = p.wait()
             out, err = p.communicate()
 
             if returncode:
                 raise EngineError(
-                    "The command %r exited with a non-zero exit code and printed this to stderr: %s"
-                    % (args, err)
+                    "The command '%s' exited with a non-zero exit code "
+                    "and printed this to stderr:\n%s"
+                    % (" ".join(args), err)
                 )
             elif err:
                 logger.error("Captured stderr: %s", err)
@@ -75,7 +74,10 @@ class Engine(EngineBase):
         """
         Returns the backend image objects from a ImageFile instance
         """
-        with NamedTemporaryFile(mode='wb', delete=False) as fp:
+
+        _, suffix = os.path.splitext(source.name)
+
+        with NamedTemporaryFile(mode='wb', delete=False, suffix=suffix) as fp:
             fp.write(source.read())
         return {'source': fp.name, 'options': OrderedDict(), 'size': None}
 
@@ -106,34 +108,40 @@ class Engine(EngineBase):
             retcode = p.wait()
         return retcode == 0
 
+    def _get_exif_orientation(self, image):
+        args = settings.THUMBNAIL_IDENTIFY.split()
+        args.extend(['-format', '%[exif:orientation]', image['source']])
+        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p.wait()
+        result = p.stdout.read().strip()
+        try:
+            return int(result)
+        except ValueError:
+            return None
+
     def _orientation(self, image):
         # return image
         # XXX need to get the dimensions right after a transpose.
 
         if settings.THUMBNAIL_CONVERT.endswith('gm convert'):
-            args = settings.THUMBNAIL_IDENTIFY.split()
-            args.extend(['-format', '%[exif:orientation]', image['source'] + '[0]'])
-            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.wait()
-            result = p.stdout.read().strip()
-            if result and result != b('unknown'):
-                result = int(result)
+            orientation = self._get_exif_orientation(image)
+            if orientation:
                 options = image['options']
-                if result == 2:
+                if orientation == 2:
                     options['flop'] = None
-                elif result == 3:
+                elif orientation == 3:
                     options['rotate'] = '180'
-                elif result == 4:
+                elif orientation == 4:
                     options['flip'] = None
-                elif result == 5:
+                elif orientation == 5:
                     options['rotate'] = '90'
                     options['flop'] = None
-                elif result == 6:
+                elif orientation == 6:
                     options['rotate'] = '90'
-                elif result == 7:
+                elif orientation == 7:
                     options['rotate'] = '-90'
                     options['flop'] = None
-                elif result == 8:
+                elif orientation == 8:
                     options['rotate'] = '-90'
         else:
             # ImageMagick also corrects the orientation exif data for
@@ -142,15 +150,8 @@ class Engine(EngineBase):
         return image
 
     def _flip_dimensions(self, image):
-        if settings.THUMBNAIL_CONVERT.endswith('gm convert'):
-            args = settings.THUMBNAIL_IDENTIFY.split()
-            args.extend(['-format', '%[exif:orientation]', image['source'] + '[0]'])
-            p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.wait()
-            result = p.stdout.read().strip()
-            return result and result != 'unknown' and int(result) in [5, 6, 7, 8]
-        else:
-            return False
+        orientation = self._get_exif_orientation(image)
+        return orientation and orientation in [5, 6, 7, 8]
 
     def _colorspace(self, image, colorspace):
         """

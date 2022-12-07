@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from sorl.thumbnail.conf import settings
 from sorl.thumbnail.helpers import serialize, deserialize, ThumbnailError
 from sorl.thumbnail.images import serialize_image_file, deserialize_image_file
@@ -18,7 +17,7 @@ def del_prefix(key):
     return key.split('||')[-1]
 
 
-class KVStoreBase(object):
+class KVStoreBase:
     def get(self, image_file):
         """
         Gets the ``image_file`` from store. Returns ``None`` if not found.

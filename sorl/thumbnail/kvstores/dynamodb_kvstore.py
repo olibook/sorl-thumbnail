@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 from boto.dynamodb2.table import Table
 import boto
 from sorl.thumbnail.kvstores.base import KVStoreBase
@@ -8,7 +6,7 @@ from sorl.thumbnail.conf import settings
 
 class KVStore(KVStoreBase):
     def __init__(self):
-        super(KVStore, self).__init__()
+        super().__init__()
         region = settings.AWS_REGION_NAME
         access_key = settings.AWS_ACCESS_KEY_ID
         secret = settings.AWS_SECRET_ACCESS_KEY

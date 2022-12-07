@@ -1,13 +1,10 @@
-# coding=utf-8
-from __future__ import division
-
 from sorl.thumbnail.conf import settings
 from sorl.thumbnail.helpers import toint
 from sorl.thumbnail.parsers import parse_crop
 from sorl.thumbnail.parsers import parse_cropbox
 
 
-class EngineBase(object):
+class EngineBase:
     """
     ABC for Thumbnail engines, methods are static
     """
@@ -79,6 +76,8 @@ class EngineBase(object):
         """
         upscale = options['upscale']
         x_image, y_image = map(float, self.get_image_size(image))
+        if self.flip_dimensions(image):
+            x_image, y_image = y_image, x_image
         factor = self._calculate_scaling_factor(x_image, y_image, geometry, options)
 
         if factor < 1 or upscale:
@@ -99,7 +98,7 @@ class EngineBase(object):
             return image
         elif crop == 'smart':
             # Smart cropping is suitably different from regular cropping
-            # to warrent it's own function
+            # to warrant it's own function
             return self._entropy_crop(image, geometry[0], geometry[1], x_image, y_image)
 
         # Handle any other crop option with the backend crop function.
@@ -166,7 +165,12 @@ class EngineBase(object):
         else:
             x, y = self.get_image_size(image)
 
-        return float(x) / y
+        ratio = float(x) / y
+
+        if self.flip_dimensions(image):
+            ratio = 1.0 / ratio
+
+        return ratio
 
     def get_image_info(self, image):
         """

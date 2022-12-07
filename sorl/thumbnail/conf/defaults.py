@@ -1,4 +1,3 @@
-from __future__ import unicode_literals
 from django.conf import settings
 
 # When True ThumbnailNode.render can raise errors
@@ -48,7 +47,7 @@ THUMBNAIL_DBM_FILE = "thumbnail_kvstore"
 THUMBNAIL_DBM_MODE = 0o644
 
 # Cache timeout for ``cached_db`` store. You should probably keep this at
-# maximum or ``0`` if your caching backend can handle that as infinate.
+# maximum or ``0`` if your caching backend can handle that as infinite.
 THUMBNAIL_CACHE_TIMEOUT = 3600 * 24 * 365 * 10  # 10 years
 
 # The cache configuration to use for storing thumbnail data
@@ -97,7 +96,7 @@ THUMBNAIL_DUMMY = False
 # http://placekitten.com/%(width)s/%(height)s
 # http://placekitten.com/g/%(width)s/%(height)s
 # http://placehold.it/%(width)sx%(height)s
-THUMBNAIL_DUMMY_SOURCE = 'http://dummyimage.com/%(width)sx%(height)s'
+THUMBNAIL_DUMMY_SOURCE = 'https://dummyimage.com/%(width)sx%(height)s'
 
 # Sets the source image ratio for dummy generation of images with only width
 # or height given

@@ -4,14 +4,14 @@ Contributing
 
 Feel free to create a new Pull request if you want to propose a new feature
 or fix a bug.  If you need development support or want to discuss
-with other developers, join us in the channel #sorl-thumnbnail at freenode.net
+with other developers, join us in the channel #sorl-thumbnail at freenode.net
 
    irc://irc.freenode.net/#sorl-thumbnail
 
 Running testsuit
 ================
 
-For occasional developers we recommend using `Travis CI`_ to run testsuit,
+For occasional developers we recommend using `GitHub Actions`_ to run testsuite,
 for those who want to run tests locally, read on.
 
 Since sorl-thumbnail supports a variety of image backends, python and
@@ -39,11 +39,11 @@ For full list of tox environments, see ``tox.ini``
 You can get away without using Vagrant if you install all packages locally yourself,
 however, this is not recommended.
 
-.. _Travis CI: https://travis-ci.org/jazzband/sorl-thumbnail
-.. _Vagrant: http://www.vagrantup.com/
-.. _tox: https://testrun.org/tox/latest/
-.. _Install Vagrant: http://docs.vagrantup.com/v2/installation/index.html
-.. _Vagrant file: https://docs.vagrantup.com/v2/virtualbox/configuration.html
+.. _GitHub Actions: https://github.com/jazzband/sorl-thumbnail/actions
+.. _Vagrant: https://www.vagrantup.com/
+.. _tox: https://tox.wiki/
+.. _Install Vagrant: https://www.vagrantup.com/docs/installation
+.. _Vagrant file: https://www.vagrantup.com/docs/providers/virtualbox/configuration
 .. _vagrant-faster: https://github.com/rdsubhas/vagrant-faster
 
 Sending pull requests

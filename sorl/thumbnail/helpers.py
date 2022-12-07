@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import hashlib
 import json
 import math
@@ -7,7 +5,6 @@ from importlib import import_module
 
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.encoding import force_str
-from sorl.thumbnail.compat import encode
 
 
 class ThumbnailError(Exception):
@@ -21,7 +18,7 @@ class SortedJSONEncoder(json.JSONEncoder):
 
     def __init__(self, **kwargs):
         kwargs['sort_keys'] = True
-        super(SortedJSONEncoder, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 def toint(number):
@@ -44,8 +41,7 @@ def tokey(*args):
     Computes a unique key from arguments given.
     """
     salt = '||'.join([force_str(arg) for arg in args])
-    hash_ = hashlib.md5(encode(salt))
-    return hash_.hexdigest()
+    return hashlib.md5(salt.encode()).hexdigest()
 
 
 def serialize(obj):

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import re
 from subprocess import Popen, PIPE
@@ -6,12 +5,13 @@ from PIL import Image
 
 from django.template.loader import render_to_string
 from django.test import Client, TestCase
+from django.test.utils import override_settings
 import pytest
 
 from sorl.thumbnail.conf import settings
 from sorl.thumbnail.engines.pil_engine import Engine as PILEngine
 from .models import Item
-from .utils import BaseTestCase, override_custom_settings, DATA_DIR
+from .utils import BaseTestCase, DATA_DIR
 
 
 pytestmark = pytest.mark.django_db
@@ -111,8 +111,10 @@ class TemplateTestCaseA(BaseTestCase):
             exif = im._getexif()
 
             # no exif editor in GraphicsMagick
-            if exif and not (settings.THUMBNAIL_CONVERT.endswith('gm convert') or
-                             'pgmagick_engine' in settings.THUMBNAIL_ENGINE):
+            if exif and not (
+                settings.THUMBNAIL_CONVERT.endswith('gm convert')
+                or 'pgmagick_engine' in settings.THUMBNAIL_ENGINE
+            ):
                 self.assertEqual(exif.get(0x0112), 1)
 
 
@@ -123,11 +125,11 @@ class TemplateTestCaseB(BaseTestCase):
 
     def test_portrait(self):
         val = render_to_string('thumbnail4.html', {
-            'source': 'http://dummyimage.com/120x100/',
+            'source': 'https://dummyimage.com/120x100/',
             'dims': 'x66',
         }).strip()
         self.assertEqual(val,
-                         '<img src="/media/test/cache/7b/cd/7bcd20922c6750649f431df7c3cdbc5e.jpg" '
+                         '<img src="/media/test/cache/82/62/8262858c5f95f2bd7715d7aaa3e52b11.jpg" '
                          'width="79" height="66" class="landscape">')
 
     def test_empty(self):
@@ -137,7 +139,7 @@ class TemplateTestCaseB(BaseTestCase):
 
 class TemplateTestCaseClient(TestCase):
     def test_empty_error(self):
-        with override_custom_settings(settings, THUMBNAIL_DEBUG=False):
+        with override_settings(THUMBNAIL_DEBUG=False):
             from django.core.mail import outbox
 
             client = Client()

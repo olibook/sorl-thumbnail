@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
 import os
+import platform
 import unittest
 from subprocess import Popen, PIPE
 
@@ -18,7 +17,6 @@ from sorl.thumbnail.parsers import parse_geometry
 from sorl.thumbnail.templatetags.thumbnail import margin
 from sorl.thumbnail.engines.pil_engine import Engine as PILEngine
 from .models import Item
-from .compat import is_osx
 from .utils import BaseTestCase
 
 
@@ -168,7 +166,7 @@ class SimpleTestCase(BaseTestCase):
             'tests.thumbnail_tests.storage.TestStorage',
         )
 
-    @unittest.skipIf(is_osx(), 'quality is saved a different way on os x')
+    @unittest.skipIf(platform.system() == "Darwin", 'quality is saved a different way on os x')
     def test_quality(self):
         im = ImageFile(Item.objects.get(image='500x500.jpg').image)
         th = self.BACKEND.get_thumbnail(im, '100x100', quality=50)
@@ -185,6 +183,12 @@ class SimpleTestCase(BaseTestCase):
         img = Image.open(th.storage.path(th.name))
         self.assertTrue(self.is_transparent(img))
 
+    def test_transparency_gif_to_jpeg(self):
+        path = 'data/animation_w_transparency.gif'
+        th = self.BACKEND.get_thumbnail(path, '11x11', format='JPEG')
+        img = Image.open(th.storage.path(th.name))
+        self.assertFalse(self.is_transparent(img))
+
     def test_image_file_deserialize(self):
         im = ImageFile(Item.objects.get(image='500x500.jpg').image)
         default.kvstore.set(im)
@@ -192,7 +196,7 @@ class SimpleTestCase(BaseTestCase):
             default.kvstore.get(im).serialize_storage(),
             'tests.thumbnail_tests.storage.TestStorage',
         )
-        im = ImageFile('http://dummyimage.com/300x300/')
+        im = ImageFile('https://dummyimage.com/300x300/')
         default.kvstore.set(im)
         self.assertEqual(
             default.kvstore.get(im).serialize_storage(),
@@ -250,7 +254,7 @@ class SimpleTestCase(BaseTestCase):
 
 class CropTestCase(BaseTestCase):
     def setUp(self):
-        super(CropTestCase, self).setUp()
+        super().setUp()
 
         # portrait
         name = 'portrait.jpg'
@@ -318,7 +322,7 @@ class CropTestCase(BaseTestCase):
             im = engine.get_image(th)
 
             self.assertEqual(mean_pixel(0, 50), 255)
-            self.assertEqual(mean_pixel(45, 50), 255)
+            self.assertEqual(254 <= mean_pixel(45, 50) <= 255, True)
             self.assertEqual(250 < mean_pixel(49, 50) <= 255, True)
             self.assertEqual(mean_pixel(55, 50), 0)
             self.assertEqual(mean_pixel(99, 50), 0)
@@ -348,16 +352,12 @@ class CropTestCase(BaseTestCase):
         th = self.BACKEND.get_thumbnail('data/white_border.jpg', '32x32', crop='smart')
         self.assertEqual(th.x, 32)
         self.assertEqual(th.y, 32)
-        
+
         engine = PILEngine()
         im = engine.get_image(th)
         self.assertEqual(im.size[0], 32)
         self.assertEqual(im.size[1], 32)
 
-    @unittest.skipIf(
-        'pil_engine' not in settings.THUMBNAIL_ENGINE,
-        'the other engines fail this test',
-    )
     def test_image_with_orientation(self):
         name = 'data/aspect_test.jpg'
         item, _ = Item.objects.get_or_create(image=name)
@@ -393,7 +393,7 @@ class CropTestCase(BaseTestCase):
 # so we cannot test for pixel color
 class CropBoxTestCase(BaseTestCase):
     def setUp(self):
-        super(CropBoxTestCase, self).setUp()
+        super().setUp()
 
         # portrait
         name = 'portrait.jpg'
@@ -539,7 +539,7 @@ class DummyTestCase(unittest.TestCase):
         self.BACKEND = get_module_class(settings.THUMBNAIL_BACKEND)()
 
     def tearDown(self):
-        super(DummyTestCase, self).tearDown()
+        super().tearDown()
         settings.THUMBNAIL_ALTERNATIVE_RESOLUTIONS = []
 
     def test_dummy_tags(self):
@@ -550,10 +550,10 @@ class DummyTestCase(unittest.TestCase):
         val = render_to_string('thumbnaild2.html', {'anything': None, }).strip()
         self.assertEqual(
             val,
-            '<img src="http://dummyimage.com/300x200" width="300" height="200"><p>NOT</p>'
+            '<img src="https://dummyimage.com/300x200" width="300" height="200"><p>NOT</p>'
         )
         val = render_to_string('thumbnaild3.html', {}).strip()
-        self.assertEqual(val, '<img src="http://dummyimage.com/600x400" width="600" height="400">')
+        self.assertEqual(val, '<img src="https://dummyimage.com/600x400" width="600" height="400">')
 
         settings.THUMBNAIL_DUMMY = False
 
@@ -563,9 +563,9 @@ class DummyTestCase(unittest.TestCase):
         val = render_to_string('thumbnaild4.html', {}).strip()
         self.assertEqual(
             val,
-            '<img src="http://dummyimage.com/600x400" width="600" '
-            'height="400" srcset="http://dummyimage.com/1200x800 2x; '
-            'http://dummyimage.com/900x600 1.5x">'
+            '<img src="https://dummyimage.com/600x400" width="600" '
+            'height="400" srcset="https://dummyimage.com/1200x800 2x; '
+            'https://dummyimage.com/900x600 1.5x">'
         )
 
 
